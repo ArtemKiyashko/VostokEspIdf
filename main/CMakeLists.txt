@@ -1,2 +1,2 @@
-idf_component_register(SRCS "esp_timer_example_main.c"
+idf_component_register(SRCS "program.c"
                     INCLUDE_DIRS ".")
