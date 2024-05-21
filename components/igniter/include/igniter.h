@@ -9,6 +9,8 @@ typedef struct {
     float igniter_timer_minutes;
 } igniter_args;
 
-void setup_igniter(igniter_args arg);
+typedef igniter_args* igniter_args_handle;
+
+void setup_igniter(igniter_args_handle arg);
 
 #endif

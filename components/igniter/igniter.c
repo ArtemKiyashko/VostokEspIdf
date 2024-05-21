@@ -5,6 +5,8 @@
 #include "esp_timer.h"
 #include "esp_log.h"
 
+#define MINIMAL_TIMER_VALUE_MINUTES 0.5
+
 static void setup_pins(igniter_args *arg);
 static void setup_timers(igniter_args *arg);
 static void ignite_timer_callback(void *arg);
@@ -17,17 +19,19 @@ esp_timer_handle_t preignite_notification_timer = NULL;
 
 static const char *TAG = "IGNITER";
 
-void setup_igniter(igniter_args arg)
+void setup_igniter(igniter_args_handle args)
 {
-    igniter_args *igniter_parameters = &arg;
-    
-    validate(igniter_parameters);
-    setup_pins(igniter_parameters);
-    setup_timers(igniter_parameters);
+    validate(args);
+    setup_pins(args);
+    setup_timers(args);
 
     /* Start the timers */
-    ESP_ERROR_CHECK(esp_timer_start_once(preignite_notification_timer, toUseconds(igniter_parameters->igniter_timer_minutes) - 10 * 1000000 /*10 seconds before ignite*/));
-    ESP_ERROR_CHECK(esp_timer_start_once(ignite_timer, toUseconds(igniter_parameters->igniter_timer_minutes)));
+    ESP_LOGI(TAG, "Starting timers with parameters. Igniter pin: %d, Igniter timer minutes: %f, Igniter notification pin: %d", 
+        args->igniter_pin, 
+        args->igniter_timer_minutes, 
+        args->ingniter_notification_pin);
+    ESP_ERROR_CHECK(esp_timer_start_once(preignite_notification_timer, toUseconds(args->igniter_timer_minutes) - 10 * 1000000 /*10 seconds before ignite*/));
+    ESP_ERROR_CHECK(esp_timer_start_once(ignite_timer, toUseconds(args->igniter_timer_minutes)));
 }
 
 #pragma region private members
@@ -39,14 +43,15 @@ static uint64_t toUseconds(float minutes)
 static void validate(igniter_args *arg)
 {
     // do not allow values less than 30 seconds due to safety!
-    if (arg->igniter_timer_minutes * 60 < 30)
+    if (arg->igniter_timer_minutes < MINIMAL_TIMER_VALUE_MINUTES)
     {
-        arg->igniter_timer_minutes = 0.5;
+        ESP_LOGI(TAG, "Timer value %f minutes less than minimal. Setting minimal value %f minutes", arg->igniter_timer_minutes, MINIMAL_TIMER_VALUE_MINUTES);
+        arg->igniter_timer_minutes = MINIMAL_TIMER_VALUE_MINUTES;
     }
 }
 static void setup_pins(igniter_args *arg)
 {
-    ESP_LOGI(TAG, "SETUP PINS");
+    ESP_LOGI(TAG, "Setup pins");
     // reset igniter and notification pins
     gpio_reset_pin(arg->igniter_pin);
     gpio_reset_pin(arg->ingniter_notification_pin);
@@ -58,12 +63,12 @@ static void setup_pins(igniter_args *arg)
     // set low output level to pins as default state
     gpio_set_level(arg->igniter_pin, false);
     gpio_set_level(arg->ingniter_notification_pin, false);
-    ESP_LOGI(TAG, "SETUP PINS COMPLETE");
+    ESP_LOGI(TAG, "Setup pins complete");
 }
 
 static void setup_timers(igniter_args *arg)
 {
-    ESP_LOGI(TAG, "SETUP TIMERS");
+    ESP_LOGI(TAG, "Setup timers");
     const esp_timer_create_args_t ignite_timer_args = {
         .callback = &ignite_timer_callback,
         .arg = (void*) arg,
@@ -75,25 +80,24 @@ static void setup_timers(igniter_args *arg)
 
     ESP_ERROR_CHECK(esp_timer_create(&ignite_timer_args, &ignite_timer));
     ESP_ERROR_CHECK(esp_timer_create(&preignite_notification_timer_args, &preignite_notification_timer));
-    ESP_LOGI(TAG, "SETUP TIMERS COMPLETE");
+    ESP_LOGI(TAG, "Setup timers complete");
 }
 
 static void preignite_notification_callback(void *arg)
 {
-    igniter_args* test = (igniter_args*) arg;
-    ESP_LOGI(TAG, "args %d, %f, %d", test->igniter_pin, test->igniter_timer_minutes, test->ingniter_notification_pin);
+    igniter_args_handle params = (igniter_args_handle) arg;
     ESP_LOGI(TAG, "PRE-IGNITE NOTIFICATION");
-    gpio_set_level(2, true);
+    gpio_set_level(params->ingniter_notification_pin, true);
 }
 
 static void ignite_timer_callback(void *arg)
 {
-    igniter_args* test = (igniter_args*) arg;
+    igniter_args_handle params = (igniter_args_handle) arg;
     ESP_LOGI(TAG, "IGNITE");
-    gpio_set_level(5, true);
+    gpio_set_level(params->igniter_pin, true);
     vTaskDelay(100 / portTICK_PERIOD_MS);
-    gpio_set_level(5, false);
-    gpio_set_level(2, false);
+    gpio_set_level(params->igniter_pin, false);
+    gpio_set_level(params->ingniter_notification_pin, false);
     ESP_LOGI(TAG, "IGNITE COMPLETE");
 }
 #pragma endregion
