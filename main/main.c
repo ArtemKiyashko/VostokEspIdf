@@ -19,15 +19,17 @@
 #include "driver/gpio.h"
 #include "igniter.h"
 
-#define IGNITE_TIMER_MINUTES 0.1
-
+#define IGNITE_TIMER_MINUTES 0.5
 
 #define IGNITE_GPIO 5
+/*GPIO 2 for ESP32, GPIO 16 for WEMOS ESP32 programmable led*/
 #define INFO_BLINK_GPIO 2
+// #define INFO_BLINK_GPIO 16
 
-static const char* TAG = "VOSTOK";
+static const char *TAG = "VOSTOK";
 
 static void mainloop(void);
+static void blink_info_times(uint8_t times);
 
 void app_main(void)
 {
@@ -35,17 +37,26 @@ void app_main(void)
     igniter_args vostok_igniter_args = {
         .igniter_pin = IGNITE_GPIO,
         .igniter_timer_minutes = IGNITE_TIMER_MINUTES,
-        .ingniter_notification_pin = INFO_BLINK_GPIO
-    };
+        .ingniter_notification_pin = INFO_BLINK_GPIO};
 
     setup_igniter(&vostok_igniter_args);
     ESP_LOGI(TAG, "Setup Igniter complete");
 
-    gpio_set_level(INFO_BLINK_GPIO, true);
-    vTaskDelay(500 / portTICK_PERIOD_MS);
-    gpio_set_level(INFO_BLINK_GPIO, false);
-    
+    blink_info_times(3);
+
     mainloop();
+}
+
+static void blink_info_times(uint8_t times)
+{
+    bool pinstatus = false;
+
+    for (int i = 0; i < times*2; i++)
+    {
+        pinstatus = !pinstatus;
+        gpio_set_level(INFO_BLINK_GPIO, pinstatus);
+        vTaskDelay(500 / portTICK_PERIOD_MS);
+    }
 }
 
 static void mainloop()

@@ -26,10 +26,10 @@ void setup_igniter(igniter_args_handle args)
     setup_timers(args);
 
     /* Start the timers */
-    ESP_LOGI(TAG, "Starting timers with parameters. Igniter pin: %d, Igniter timer minutes: %f, Igniter notification pin: %d", 
-        args->igniter_pin, 
-        args->igniter_timer_minutes, 
-        args->ingniter_notification_pin);
+    ESP_LOGI(TAG, "Starting timers with parameters. Igniter pin: %d, Igniter timer minutes: %f, Igniter notification pin: %d",
+             args->igniter_pin,
+             args->igniter_timer_minutes,
+             args->ingniter_notification_pin);
     ESP_ERROR_CHECK(esp_timer_start_once(preignite_notification_timer, toUseconds(args->igniter_timer_minutes) - 10 * 1000000 /*10 seconds before ignite*/));
     ESP_ERROR_CHECK(esp_timer_start_once(ignite_timer, toUseconds(args->igniter_timer_minutes)));
 }
@@ -71,11 +71,11 @@ static void setup_timers(igniter_args *arg)
     ESP_LOGI(TAG, "Setup timers");
     const esp_timer_create_args_t ignite_timer_args = {
         .callback = &ignite_timer_callback,
-        .arg = (void*) arg,
+        .arg = (void *)arg,
         .name = "ignite"};
     const esp_timer_create_args_t preignite_notification_timer_args = {
         .callback = &preignite_notification_callback,
-        .arg = (void*) arg,
+        .arg = (void *)arg,
         .name = "preignite-notification"};
 
     ESP_ERROR_CHECK(esp_timer_create(&ignite_timer_args, &ignite_timer));
@@ -85,14 +85,14 @@ static void setup_timers(igniter_args *arg)
 
 static void preignite_notification_callback(void *arg)
 {
-    igniter_args_handle params = (igniter_args_handle) arg;
+    igniter_args_handle params = (igniter_args_handle)arg;
     ESP_LOGI(TAG, "PRE-IGNITE NOTIFICATION");
     gpio_set_level(params->ingniter_notification_pin, true);
 }
 
 static void ignite_timer_callback(void *arg)
 {
-    igniter_args_handle params = (igniter_args_handle) arg;
+    igniter_args_handle params = (igniter_args_handle)arg;
     ESP_LOGI(TAG, "IGNITE");
     gpio_set_level(params->igniter_pin, true);
     vTaskDelay(100 / portTICK_PERIOD_MS);
