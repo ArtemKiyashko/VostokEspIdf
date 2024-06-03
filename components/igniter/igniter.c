@@ -62,7 +62,7 @@ static void setup_pins(igniter_args *arg)
 
     // set low output level to pins as default state
     gpio_set_level(arg->igniter_pin, false);
-    gpio_set_level(arg->ingniter_notification_pin, false);
+    gpio_set_level(arg->ingniter_notification_pin, true);
     ESP_LOGI(TAG, "Setup pins complete");
 }
 
@@ -87,7 +87,7 @@ static void preignite_notification_callback(void *arg)
 {
     igniter_args_handle params = (igniter_args_handle)arg;
     ESP_LOGI(TAG, "PRE-IGNITE NOTIFICATION");
-    gpio_set_level(params->ingniter_notification_pin, true);
+    gpio_set_level(params->ingniter_notification_pin, false);
 }
 
 static void ignite_timer_callback(void *arg)
@@ -97,7 +97,7 @@ static void ignite_timer_callback(void *arg)
     gpio_set_level(params->igniter_pin, true);
     vTaskDelay(100 / portTICK_PERIOD_MS);
     gpio_set_level(params->igniter_pin, false);
-    gpio_set_level(params->ingniter_notification_pin, false);
+    gpio_set_level(params->ingniter_notification_pin, true);
     ESP_LOGI(TAG, "IGNITE COMPLETE");
 }
 #pragma endregion

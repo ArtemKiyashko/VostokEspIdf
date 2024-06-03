@@ -19,17 +19,18 @@
 #include "driver/gpio.h"
 #include "igniter.h"
 
-#define IGNITE_TIMER_MINUTES 0.5
+#define IGNITE_TIMER_MINUTES 3
 
-#define IGNITE_GPIO 5
+#define IGNITE_GPIO 23
 /*GPIO 2 for ESP32, GPIO 16 for WEMOS ESP32 programmable led*/
-#define INFO_BLINK_GPIO 2
-// #define INFO_BLINK_GPIO 16
+// #define INFO_BLINK_GPIO 2
+#define INFO_BLINK_GPIO 16
 
 static const char *TAG = "VOSTOK";
 
 static void mainloop(void);
 static void blink_info_times(uint8_t times);
+static void initialize_gpio();
 
 void app_main(void)
 {
@@ -49,9 +50,9 @@ void app_main(void)
 
 static void blink_info_times(uint8_t times)
 {
-    bool pinstatus = false;
+    bool pinstatus = true;
 
-    for (int i = 0; i < times*2; i++)
+    for (int i = 0; i < times * 2; i++)
     {
         pinstatus = !pinstatus;
         gpio_set_level(INFO_BLINK_GPIO, pinstatus);
