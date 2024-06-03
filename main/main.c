@@ -27,10 +27,8 @@
 #define INFO_BLINK_GPIO 16
 
 static const char *TAG = "VOSTOK";
-
 static void mainloop(void);
 static void blink_info_times(uint8_t times);
-static void initialize_gpio();
 
 void app_main(void)
 {
