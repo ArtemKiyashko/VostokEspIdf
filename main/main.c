@@ -1,12 +1,3 @@
-/* esp_timer (high resolution timer) example
-
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
-
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
-*/
-
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -15,13 +6,16 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "igniter.h"
+#include "pressure_keepalive_worker.h"
 
-#define IGNITE_TIMER_MINUTES 3
+#define IGNITE_TIMER_MINUTES 1
 
 #define IGNITE_GPIO 23
 /*GPIO 2 for ESP32, GPIO 16 for WEMOS ESP32 programmable led*/
 // #define INFO_BLINK_GPIO 2
 #define INFO_BLINK_GPIO 16
+#define PRESSURE_WORKER_PIN 22
+#define PRESSURE_WORKER_INTERVAL_MS 10000 
 
 static const char *TAG = "VOSTOK";
 static void mainloop(void);
@@ -37,6 +31,14 @@ void app_main(void)
 
     setup_igniter(&vostok_igniter_args);
     ESP_LOGI(TAG, "Setup Igniter complete");
+
+    ESP_LOGI(TAG, "Setup Pressure Worker");
+    pressure_keepalive_worker_args vostok_pressure_worker_args = {
+        .pressure_keepalive_worker_interval_ms = PRESSURE_WORKER_INTERVAL_MS,
+        .pressure_keepalive_worker_pin = PRESSURE_WORKER_PIN};
+
+    setup_pressure_keepalive_worker(&vostok_pressure_worker_args);
+    ESP_LOGI(TAG, "Setup Pressure Worker complete");
 
     blink_info_times(3);
 

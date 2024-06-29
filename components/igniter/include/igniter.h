@@ -11,6 +11,6 @@ typedef struct {
 
 typedef igniter_args* igniter_args_handle;
 
-void setup_igniter(igniter_args_handle arg);
+void setup_igniter(igniter_args_handle args);
 
 #endif
