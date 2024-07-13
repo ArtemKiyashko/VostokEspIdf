@@ -8,7 +8,7 @@
 #include "igniter.h"
 #include "pressure_keepalive_worker.h"
 
-#define IGNITE_TIMER_MINUTES 1
+#define IGNITE_TIMER_MINUTES 120
 
 #define IGNITE_GPIO 23
 /*GPIO 2 for ESP32, GPIO 16 for WEMOS ESP32 programmable led*/
@@ -31,14 +31,6 @@ void app_main(void)
 
     setup_igniter(&vostok_igniter_args);
     ESP_LOGI(TAG, "Setup Igniter complete");
-
-    ESP_LOGI(TAG, "Setup Pressure Worker");
-    pressure_keepalive_worker_args vostok_pressure_worker_args = {
-        .pressure_keepalive_worker_interval_ms = PRESSURE_WORKER_INTERVAL_MS,
-        .pressure_keepalive_worker_pin = PRESSURE_WORKER_PIN};
-
-    setup_pressure_keepalive_worker(&vostok_pressure_worker_args);
-    ESP_LOGI(TAG, "Setup Pressure Worker complete");
 
     blink_info_times(3);
 
