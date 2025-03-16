@@ -10,7 +10,7 @@
     "idf.openOcdConfigs": [
         "board/esp32-bridge.cfg"
     ],
-    "idf.port": "/dev/cu.SLAB_USBtoUART",
+    "idf.port": "/dev/tty.usbserial-0001",
     "idf.pythonBinPath": "/Users/artem/.espressif/python_env/idf5.2_py3.12_env/bin/python",
     "idf.toolsPath": "/Users/artem/.espressif",
     "idf.flashType": "UART",
@@ -20,6 +20,10 @@
         "igniter.h": "c",
         "esp_log.h": "c",
         "complex": "c",
-        "format": "c"
+        "format": "c",
+        "sdkconfig.h": "c",
+        "chrono": "c",
+        "gpio.h": "c",
+        "esp_chip_info.h": "c"
     }
 }
