@@ -8,3 +8,6 @@
 
 - Flash download tool: https://www.espressif.com/sites/default/files/tools/flash_download_tool_3.9.6_1.zip
 - Press BOOT during flashing!
+
+Circuit
+![circuit](images/vostok-alt-igniter.png)
